@@ -52,11 +52,9 @@ import javax.swing.JPanel;
  * 
  *      PRIORITY    |   TODO:
  *      
- *      1               Add Launcher(Screensize,Fullscreen)
+ *      1               Add Launcher(Screensize)
  *      2               Add items(armor, weapons for stats)
- *      3               Add Spells
  *      3               Add more textures+animations
- *      4               Add Tooltips
  *      4               Add NPCs with quests
  *      5               Add different areas with different mobs
  *      3               Make spells skillable
@@ -66,11 +64,13 @@ public class Game extends JFrame {
 
     public DrawPanel dp;
     public static boolean fullscreen, wasd;
-
-    public Game(boolean fullscreen, boolean wasd) {
+    public static boolean hardcore;
+    
+    public Game(boolean fullscreen, boolean wasd, boolean hardcore) {
         this.setUndecorated(false);
         this.fullscreen = fullscreen;
         this.wasd = wasd;
+        this.hardcore=hardcore;
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice[] gs = ge.getScreenDevices();
         setLayout(new BorderLayout());
@@ -101,7 +101,7 @@ public class Game extends JFrame {
             this.setSize(1280, 720);
         }
         this.setResizable(false);
-        dp = new DrawPanel(getWidth(), getHeight(), wasd);
+        dp = new DrawPanel(getWidth(), getHeight(), wasd, hardcore);
         dp.setLocation(0, 0);
         Container c = getContentPane();
         c.setLayout(new BorderLayout());
@@ -119,7 +119,7 @@ public class Game extends JFrame {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        JFrame lol = new Game(fullscreen, wasd);
+        JFrame lol = new Game(fullscreen, wasd,hardcore);
 
         lol.setVisible(true);
 
@@ -217,8 +217,9 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
     }
     public int height, width;
     public boolean wasd;
-
-    public DrawPanel(int width, int height, boolean wasd) {
+    public boolean hardcore;
+    
+    public DrawPanel(int width, int height, boolean wasd, boolean hardcore) {
         //super();
         super(new FlowLayout(FlowLayout.LEADING));
         this.wasd = wasd;
@@ -226,7 +227,8 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
         this.width = width;
         this.height = height;
         this.setSize(width, height);
-        p = (width / 500) * 3;
+    this.hardcore=hardcore;
+    p = (width / 500) * 3;
         System.out.println("p is " + p);
         ob = new PointEx[p];
         y = height - 180;
@@ -268,15 +270,15 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
         bs[2] = 0;
         load();
         int[] spells = {};
-        tt.add(new Tooltip(spells, "You can jump using the space bar.", (getWidth() / 2 + 250), (getHeight() - 190), 1500));
+        if(lvl==1 && xp==0){tt.add(new Tooltip(spells, "You can jump using the space bar.", (getWidth() / 2 + 250), (getHeight() - 190), 1500));
 
         tt.add(new Tooltip(spells, "Try shooting by pressing and holding \nthe right mouse button", (getWidth() / 2 + 250), (getHeight() - 280), 1500));
-
+        }
     }
     CD bulletcd;
     CD statikwalk;
     ArrayList<Bullet> bullet;
-    float crit = 0.01f;
+    
     int c = 1;
     volatile double x = 20, y;
     volatile long score = 0;
@@ -284,6 +286,7 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
     volatile int wx, wy;
     boolean alive = true;
     public volatile int mayJump = 0;
+    
     int hp = 20;
     int maxhp = 20;
     volatile static int lvl = 1;
@@ -292,11 +295,13 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
     int bulletCD = 500;
     volatile int chosenSpell = -1;
     double dmg = dmg = 1 + (0.1 + (0.01 * lvl)) * lvl;
-    ;
+    
     int abilityPower = 0;
     int invincible = 0;
     double bulletspeed = 1.0;
     double speed = 1;
+    float crit = 0.01f;
+    
     volatile boolean bmod = false;
     int p;
     volatile PointEx[] ob;
@@ -1399,7 +1404,25 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
                 g2d.setColor(Color.RED);
                 g2d.setFont(new Font("Helvetica", Font.BOLD, 30));
                 g2d.drawChars("GAME OVER".toCharArray(), 0, 9, getWidth() / 2 - 80, getHeight() / 2 - 29);
-
+save();
+if(hardcore){
+        File f = new File(System.getProperty("user.home") + "/.game/save.dat");
+        if(f.exists())f.delete();
+        hp = 20;
+    maxhp = 20;
+    lvl = 1;
+    maxxp = 80;
+    xp = 0;
+    bulletCD = 500;
+    chosenSpell = -1;
+    dmg = 1 + (0.1 + (0.01 * lvl)) * lvl;
+    
+    abilityPower = 0;
+    invincible = 0;
+    bulletspeed = 1.0;
+    speed = 1;
+    crit = 0.01f;
+}
                 g2d.setColor(Color.WHITE);
                 if (score > 0) {
                     lastscore = score;

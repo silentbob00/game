@@ -26,7 +26,7 @@ public class KeyListena implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent ke) {
-        System.out.println("Key pressed:" + ke.getKeyCode());
+        //System.out.println("Key pressed:" + ke.getKeyCode());
         if(ke.getKeyCode()==107){
                     D.giveXP(80*D.lvl*D.lvl*D.lvl);
                 }
@@ -67,6 +67,7 @@ public class KeyListena implements KeyListener {
                     if (!(D.jumping)) {
                         D.jumping = true;
                         D.jumpstate = 1;
+                        D.mayJump=0;
                     }
                 } else {
                     if (ke.getKeyCode() == 49) {
