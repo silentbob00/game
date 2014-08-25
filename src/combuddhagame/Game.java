@@ -66,7 +66,7 @@ public class Game extends JFrame {
 
     public DrawPanel dp;
     public static boolean fullscreen, wasd;
-    
+
     public Game(boolean fullscreen, boolean wasd) {
         this.setUndecorated(false);
         this.fullscreen = fullscreen;
@@ -127,36 +127,36 @@ public class Game extends JFrame {
     }
 }
 
-
-class PaintLoop extends java.util.TimerTask{
+class PaintLoop extends java.util.TimerTask {
 
     DrawPanel dP;
 
     public PaintLoop(DrawPanel dP) {
         this.dP = dP;
     }
-int i=0;
+    int i = 0;
+
     @Override
     public void run() {
-        
-            i++;
-                
-            dP.repaint();
-            if (!dP.paused) {
-                    if (dP.walking
-                            || (dP.mayWalk) < 1) {
-                        dP.mayWalk += 2;
-                        if (i >= 3) {
-                            i = 0;
-                            dP.mayDraw = true;
-                        }
-                    }
-                    if (dP.jumping) {
-                        dP.mayJump++;
-                    }
 
-                    dP.rainWalk += 2;
-                
+        i++;
+
+        dP.repaint();
+        if (!dP.paused) {
+            if (dP.walking
+                    || (dP.mayWalk) < 1) {
+                dP.mayWalk += 2;
+                if (i >= 3) {
+                    i = 0;
+                    dP.mayDraw = true;
+                }
+            }
+            if (dP.jumping) {
+                dP.mayJump++;
+            }
+
+            dP.rainWalk += 2;
+
         }
     }
 }
@@ -190,17 +190,16 @@ class ThreadI extends Thread {
     }
 }
 
-
-
 class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
 
     public BufferedImage[] character = new BufferedImage[10];
     public volatile int rainWalk = 0;
-    public CopyOnWriteArrayList<Tooltip> tt=new CopyOnWriteArrayList<Tooltip>();
+    public volatile CopyOnWriteArrayList<Tooltip> tt = new CopyOnWriteArrayList<Tooltip>();
+
     public void getCharacter() throws IOException {
 
         for (int i = 1; i <= 10; i++) {
-            character[i - 1] = ImageIO.read(new File(("character/" + i + ".png")));
+            character[i - 1] = ImageIO.read(new File("character/" + i + ".png"));
         }
 
     }
@@ -210,11 +209,11 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
     public void getStatic() throws IOException {
 
         for (int i = 1; i <= 3; i++) {
-            enemies[i - 1] = ImageIO.read(new File(("character/e" + i + ".png")));
+            enemies[i - 1] = ImageIO.read(new File("character/e" + i + ".png"));
         }
         enemies[3] = ImageIO.read(new File("character/dragon.png"));
-        enemies[4]=ImageIO.read(new File("character/warlock.png"));
-        enemies[5]=ImageIO.read(new File("character/metallogo.png"));
+        enemies[4] = ImageIO.read(new File("character/warlock.png"));
+        enemies[5] = ImageIO.read(new File("character/metallogo.png"));
     }
     public int height, width;
     public boolean wasd;
@@ -233,14 +232,14 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
         y = height - 180;
         System.out.println("y:" + y);
         generatePoints();
-       // try {
-            //bg=ImageIO.read(new File("/home/andreas/Documents/kit.png"));
-      //  } catch (IOException ex) {
-       //     Logger.getLogger(DrawPanel.class.getName()).log(Level.SEVERE, null, ex);
-       // }
-        
-        Timer timer=new Timer();
-        timer.schedule(new PaintLoop(this),0,1000/60);
+        // try {
+        //bg=ImageIO.read(new File("/home/andreas/Documents/kit.png"));
+        //  } catch (IOException ex) {
+        //     Logger.getLogger(DrawPanel.class.getName()).log(Level.SEVERE, null, ex);
+        // }
+
+        Timer timer = new Timer();
+        timer.schedule(new PaintLoop(this), 0, 1000 / 60);
         try {
             getCharacter();
             getStatic();
@@ -268,10 +267,10 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
         respawn2.tick = false;
         bs[2] = 0;
         load();
-        int[] spells={};
-        tt.add(new Tooltip(spells,"You can jump using the space bar.",(getWidth()/2+250),(getHeight()-190),1500));
-        
-                tt.add(new Tooltip(spells,"Try shooting by pressing and holding \nthe right mouse button",(getWidth()/2+250),(getHeight()-280),1500));
+        int[] spells = {};
+        tt.add(new Tooltip(spells, "You can jump using the space bar.", (getWidth() / 2 + 250), (getHeight() - 190), 1500));
+
+        tt.add(new Tooltip(spells, "Try shooting by pressing and holding \nthe right mouse button", (getWidth() / 2 + 250), (getHeight() - 280), 1500));
 
     }
     CD bulletcd;
@@ -490,14 +489,17 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
             hp = maxhp;
             if (lvl == 8) {
                 choosing = true;
-                int[] spells={2,3};
-                tt.add(new Tooltip(spells,"Choose carefully. Press H for Heal. I for Invincibility",(getWidth()/2+250),(getHeight()-280),-1));
+                int[] spells = {2, 3};
+                tt.add(new Tooltip(spells, "Choose carefully. Press H for Heal. I for Invincibility", (getWidth() / 2 + 250), (getHeight() - 280), -1));
             }
-            
-            if(lvl==2){
-                int[] spells={1};
-                if(tt.size()>0)tt.add(new Tooltip(spells,"Use your new spell by pressing 1 on the\nkeyboard. Place it using the right mouse button",(getWidth()/2+250),(getHeight()-480),1512));
-                else tt.add(new Tooltip(spells,"Use your new spell by pressing 1 on the\nkeyboard. Place it using the right mouse button",(getWidth()/2+250),(getHeight()-280),1512));
+
+            if (lvl == 2) {
+                int[] spells = {1};
+                if (tt.size() > 0) {
+                    tt.add(new Tooltip(spells, "Use your new spell by pressing 1 on the\nkeyboard. Place it using the right mouse button", (getWidth() / 2 + 250), (getHeight() - 480), 1512));
+                } else {
+                    tt.add(new Tooltip(spells, "Use your new spell by pressing 1 on the\nkeyboard. Place it using the right mouse button", (getWidth() / 2 + 250), (getHeight() - 280), 1512));
+                }
             }
 
         }
@@ -575,56 +577,110 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
             Logger.getLogger(DrawPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-public void drawTooltips(Graphics2D g){
-    for(Tooltip t:tt){
-        if(t.life!=0){
-            t.life--;
-            g.setColor(new Color(30,60,45,140));
-        if(t.spells.length>0){
-            g.fillRect(t.x,t.y,340,120);
-            g.setColor(new Color(200,220,45));
-            
-            String[] msg=t.message.split("\n");
-            int i=0;
-            for(String s:msg){
-            g.drawString(s, t.x+5, t.y+90+i*24);
-                i++;    
+
+    public void drawTooltips(Graphics2D g) {
+        for (Tooltip t : tt) {
+            if (t.life != 0) {
+                t.life--;
+                if (t.life > 140 != t.life < 0) {
+                    g.setColor(new Color(30, 60, 45, 140));
+                } else {
+                    if (t.life >= 0) {
+                        g.setColor(new Color(30, 60, 45, t.life));
+                    }
+                };
+                if (t.spells.length > 0) {
+                    g.fillRect(t.x, t.y, 340, (int) (120.0 * t.height));
+                    g.setColor(new Color(200, 220, 45));
+
+                    String[] msg = t.message.split("\n");
+                    int i = 0;
+                    for (String s : msg) {
+                        g.drawString(s, t.x + 5, t.y + 90 + i * 24);
+                        i++;
+                    }
+                } else {
+                    g.fillRect(t.x, t.y, 340, (int) (70.0 * t.height));
+
+                    g.setColor(new Color(200, 220, 45));
+                    String[] msg = t.message.split("\n");
+                    int i = 0;
+                    for (String s : msg) {
+                        g.drawString(s, t.x + 5, t.y + 25 + i * 24);
+                        i++;
+                    }
+                }
+                int c = 0;
+                for (int i : t.spells) {
+                    g.drawImage(icon.get(i), null, t.x + 5 + c * 90, t.y + 5);
+
+                    c++;
+                }
+            } else {
+                tt.remove(t);
+                t = null;
             }
-        }else{
-            g.fillRect(t.x, t.y, 340, 70);
-            
-            g.setColor(new Color(200,220,45));
-            String[] msg=t.message.split("\n");
-            int i=0;
-            for(String s:msg){
-            g.drawString(s, t.x+5, t.y+25+i*24);
-                i++;    
-            }
-        }
-        int c=0;
-        for(int i:t.spells){
-            g.drawImage(icon.get(i), null, t.x+5+c*90, t.y+5);
-        c++;
-        }}else{
-            tt.remove(t);
-            t=null;
         }
     }
-}
+    int s;
+    volatile int spelltt = -1;
+
     public void drawSpell(Graphics2D g) {
-        
+
         if (placingspell != -1) {
             g.drawImage(placer, null, mx - (placer.getWidth() / 2), my - (placer.getHeight() / 2));
         }
 
         if (lvl >= 2) {
             g.drawImage(icon.get(0), null, 20, getHeight() - 70);
+            if (mx > (20)
+                    && mx < (icon.get(0).getWidth() + (20))
+                    && my > getHeight() - 70
+                    && my < ((getHeight() - 70) + icon.get(0).getHeight())) {
+                if(spelltt==-1){
+                spelltt = 0;
+
+
+                tt.add(new Tooltip(0, "1: Waterfall of Damage\nUse this by pressing 1 on your\nkeyboard. Then press the right mouse button\nupon the enemies you want to hit to\ndeal them damage.", mx, my - 180, -1));
+            }} else {
+                if (spelltt == 0) {
+                    for (Tooltip t : tt) {
+                        if (t.spellID == 0) {
+                            if (t.life <= -1) {
+                                t.life = 140;
+                                spelltt=-1;
+                            }
+                        }
+                    }
+                }
+            }
             if (!spellcd.get(0).tick) {
                 g.setColor(Color.RED);
                 g.drawLine(20, getHeight() - 70, 85, getHeight() - 5);
             }
             if (lvl >= 4) {
                 g.drawImage(icon.get(1), null, 100, getHeight() - 70);
+                if (mx > (100)
+                    && mx < (icon.get(1).getWidth() + (100))
+                    && my > getHeight() - 70
+                    && my < ((getHeight() - 70) + icon.get(1).getHeight())) {
+                if(spelltt==-1){
+                spelltt = 1;
+
+
+                tt.add(new Tooltip(1, "2: Teleport\nUse this by pressing 2 on your\nkeyboard. Then press the right mouse button at\nthe position you want to appear at.", mx, my - 180, -1));
+            }} else {
+                if (spelltt == 1) {
+                    for (Tooltip t : tt) {
+                        if (t.spellID == 1) {
+                            if (t.life <= -1) {
+                                t.life = 140;
+                                spelltt=-1;
+                            }
+                        }
+                    }
+                }
+            }
                 if (!spellcd.get(1).tick) {
                     g.setColor(Color.RED);
                     g.drawLine(100, getHeight() - 70, 165, getHeight() - 5);
@@ -632,7 +688,30 @@ public void drawTooltips(Graphics2D g){
             }
             if (lvl >= 8 && chosenSpell != -1) {
                 g.drawImage(icon.get(chosenSpell), null, 180, getHeight() - 70);
+                if (mx > (180)
+                    && mx < (icon.get(chosenSpell).getWidth() + (180))
+                    && my > getHeight() - 70
+                    && my < ((getHeight() - 70) + icon.get(chosenSpell).getHeight())) {
+                if(spelltt==-1){
+                spelltt = chosenSpell;
 
+
+                switch(chosenSpell){
+                    case 2:tt.add(new Tooltip(chosenSpell, "3: Heal\nUse this by pressing 3 on your\nkeyboard. \nYou shall receive awesome heal-age.", mx, my - 180, -1));break;
+                    case 3:tt.add(new Tooltip(chosenSpell, "3: Invincibility\nUse this by pressing 3 on your\nkeyboard. \nDu wirst unbesiegbar sein!", mx, my - 180, -1));break;
+                }
+            }} else {
+                if (spelltt == chosenSpell) {
+                    for (Tooltip t : tt) {
+                        if (t.spellID == chosenSpell) {
+                            if (t.life <= -1) {
+                                t.life = 140;
+                                spelltt=-1;
+                            }
+                        }
+                    }
+                }
+            }
                 if (!spellcd.get(chosenSpell).tick) {
                     g.setColor(Color.RED);
                     g.drawLine(180, getHeight() - 70, 245, getHeight() - 5);
@@ -879,7 +958,7 @@ public void drawTooltips(Graphics2D g){
                                     s = (new Statik((s.hp / s.maxhp) * ((bs[2] * 2) + 1) * 30, (bs[2] * 2) * 30, bs[2] + 3, 1.7, 2, 350, getWidth(), height - 180, s.name + bs[2], (bs[2] * bs[2] + 1) * 50000));
                                     respawn2.tick = false;
                                 }
-                                
+
 
                             }
                             if (bplusattack) {
@@ -1046,36 +1125,33 @@ public void drawTooltips(Graphics2D g){
             g.fillRect((int) b.x, (int) b.y, 15, 5);
             Random r = new Random(1000);
             for (Statik s : statik) {
-                if (b != null) {
-                    if (s.hp > 0) {
-                        if ((b.x + 15) >= s.x - 100
-                                && (b.x) <= s.x - 100 + enemies[s.picID].getWidth()
-                                && (b.y + 5) >= y - 100
-                                && (b.y) <= y - 100 + enemies[s.picID].getHeight()) {
-                            if (r.nextInt(1000) > (((double) crit) * 1000.0)) {
-                                s.hp -= dmg;
-                            } else {
-                                s.hp -= 3 * dmg;
-                                g.setColor(Color.RED);
-                                g.drawString("CRIT", (int) b.x, (int) b.y);
-                                System.out.println(r.nextInt() + "CRIT" + (((double) crit) * 1000.0));
-                            }
-                            if (s.hp <= 0) {
-                                statik.remove(s);
-                                giveXP(s.xp);
-
-                                score += s.xp;
-                                if (s.picID != 3) {
-                                    as[s.picID]--;
-                                }
-                                break;
-                            }
-                            System.out.println("HIT");
-                            b.nullify = true;
-
-                        }
+                if (b != null && s.hp > 0 && ((b.x + 15) >= s.x - 100
+                        && (b.x) <= s.x - 100 + enemies[s.picID].getWidth()
+                        && (b.y + 5) >= y - 100
+                        && (b.y) <= y - 100 + enemies[s.picID].getHeight())) {
+                    if (r.nextInt(1000) > (((double) crit) * 1000.0)) {
+                        s.hp -= dmg;
+                    } else {
+                        s.hp -= 3 * dmg;
+                        g.setColor(Color.RED);
+                        g.drawString("CRIT", (int) b.x, (int) b.y);
+                        System.out.println(r.nextInt() + "CRIT" + (((double) crit) * 1000.0));
                     }
+                    if (s.hp <= 0) {
+                        statik.remove(s);
+                        giveXP(s.xp);
+
+                        score += s.xp;
+                        if (s.picID != 3) {
+                            as[s.picID]--;
+                        }
+                        break;
+                    }
+                    b.nullify = true;
+
                 }
+
+
             }
 
             if (b.x > getWidth() || b.y < 0 || b.y > getHeight() || b.x < 0 || (b.wx > b.x) && (b.wx - b.x <= 1 || (b.wx - b.x < 0 && b.x - b.wx <= 1)) && ((b.y - b.wy < 0 && b.wy - b.y <= 1) || (b.y > b.wy) && b.y - b.wy <= 1)) {
@@ -1102,60 +1178,60 @@ public void drawTooltips(Graphics2D g){
     public void drawStatik(Graphics2D g) {
         if (!drawingStatik) {
             drawingStatik = true;
-            
-                int i = 0;
-                for (Statik s : statik) {
-                    i++;
-                    if (s.hp != 0) {
-                        int picWidth = enemies[s.picID].getWidth();
-                        int picHeight = enemies[s.picID].getHeight();
+
+            int i = 0;
+            for (Statik s : statik) {
+                i++;
+                if (s.hp != 0) {
+                    int picWidth = enemies[s.picID].getWidth();
+                    int picHeight = enemies[s.picID].getHeight();
 
 
-                        g.setColor(Color.BLACK);
-                        g.fillRect((int) s.x - (picWidth / 2 + 1) + picWidth / 2 - 50, (int) s.y - (picHeight / 2 + 36), 100, 22);
-                        double pixelPerHpS = (double) ((double) (100.0) / (double) s.maxhp);
-                        g.setColor(Color.RED);
-                        g.fillRect((int) s.x - picWidth / 2 + picWidth / 2 - 50, (int) s.y - (picHeight / 2 + 35), (int) ((double) s.hp * (double) pixelPerHpS), 20);
+                    g.setColor(Color.BLACK);
+                    g.fillRect((int) s.x - (picWidth / 2 + 1) + picWidth / 2 - 50, (int) s.y - (picHeight / 2 + 36), 100, 22);
+                    double pixelPerHpS = (double) ((double) (100.0) / (double) s.maxhp);
+                    g.setColor(Color.RED);
+                    g.fillRect((int) s.x - picWidth / 2 + picWidth / 2 - 50, (int) s.y - (picHeight / 2 + 35), (int) ((double) s.hp * (double) pixelPerHpS), 20);
 
-                        g.drawImage(enemies[s.picID], null, (int) s.x - picWidth / 2, (int) s.y - picHeight / 2);
-                        g.setColor(new Color(128, 127, 10));
-                        g.drawChars(s.name.toCharArray(), 0, s.name.toCharArray().length, (int) s.x - 100 + enemies[s.picID].getWidth() / 2 - s.textwidth / 2, (int) s.y - enemies[s.picID].getHeight()/2 -60);
-                        if (s.x >= x && (s.x - x) <= 5 || s.x <= x && (x - s.x) <= 5
-                                && (((y - s.y) > 0 && (y - s.y) < 3)
-                                || ((y - s.y) <= 0 && ((y - s.y) >= -3)))) {
-                            if (s.maydmg && invincible <= 0) {
-                                hp -= s.dmg;
-                                s.maydmg = false;
-                            }
-                            if (hp <= 0) {
-                                alive = false;
-                                walking = false;
-                            }
+                    g.drawImage(enemies[s.picID], null, (int) s.x - picWidth / 2, (int) s.y - picHeight / 2);
+                    g.setColor(new Color(128, 127, 10));
+                    g.drawChars(s.name.toCharArray(), 0, s.name.toCharArray().length, (int) s.x - 100 + enemies[s.picID].getWidth() / 2 - s.textwidth / 2, (int) s.y - enemies[s.picID].getHeight() / 2 - 60);
+                    if (s.x >= x && (s.x - x) <= 5 || s.x <= x && (x - s.x) <= 5
+                            && (((y - s.y) > 0 && (y - s.y) < 3)
+                            || ((y - s.y) <= 0 && ((y - s.y) >= -3)))) {
+                        if (s.maydmg && invincible <= 0) {
+                            hp -= s.dmg;
+                            s.maydmg = false;
                         }
-                        if (statikwalk.tick) {
-                            if (s.x > x) {
-                                s.x -= s.speed;
-                            } else {
-                                if (s.x < x) {
-                                    s.x += s.speed;
-                                }
-                            }
-                            if (i == statik.size()) {
-                                statikwalk.tick = false;
-                            }
-                        }
-                    } else {
-                        statik.remove(s);
-                        if (s.picID != 3) {
-                            as[s.picID]--;
+                        if (hp <= 0) {
+                            alive = false;
+                            walking = false;
                         }
                     }
+                    if (statikwalk.tick) {
+                        if (s.x > x) {
+                            s.x -= s.speed;
+                        } else {
+                            if (s.x < x) {
+                                s.x += s.speed;
+                            }
+                        }
+                        if (i == statik.size()) {
+                            statikwalk.tick = false;
+                        }
+                    }
+                } else {
+                    statik.remove(s);
+                    if (s.picID != 3) {
+                        as[s.picID]--;
+                    }
                 }
-            
+            }
+
             drawingStatik = false;
         }
     }
-    int[] as = {0, 0, 0,0,0,0};
+    int[] as = {0, 0, 0, 0, 0, 0};
     int[] bs = {0, 0, 0};
     boolean first = true;
     public volatile boolean paused = false;
@@ -1163,10 +1239,11 @@ public void drawTooltips(Graphics2D g){
     CD respawn1 = new CD(65000, this);
     CD respawn2 = new CD(90000, this);
     public volatile int mx, my;
-    public volatile int spellmx,spellmy;
-    public volatile boolean warlockSpawned=false;
-    public volatile boolean metalSpawned=false;
+    public volatile int spellmx, spellmy;
+    public volatile boolean warlockSpawned = false;
+    public volatile boolean metalSpawned = false;
     //BufferedImage bg;
+
     @Override
     public void paintComponent(Graphics g) {
         if (!paused) {
@@ -1174,66 +1251,71 @@ public void drawTooltips(Graphics2D g){
             if (first) {
                 g.setFont(new Font("Helvetica", Font.PLAIN, 16));
                 first = false;
-            
+
             }
             g2d.setColor(new Color(5, 0, 255));
             g2d.fillRect(0, 0, width, getHeight() - 50);
             g2d.setColor(new Color(20, 200, 85));
             g2d.fillRect(0, getHeight() - 50, width, getHeight());
-                        //g2d.drawImage(bg, null, 0,0-(bg.getHeight()-height)+400);
-                if (as[0] <= (dmg / 2.0) && lvl > 0 && lvl < 16 && as[1] == 0 && as[2] == 0 && respawn0.tick && statik.size() < 4) {
-                    as[0]++;
-                    bs[0] = lvl / 4 + (int) ((double) (Math.random() * ((double) lvl / 2)));
+            //g2d.drawImage(bg, null, 0,0-(bg.getHeight()-height)+400);
+            if (as[0] <= (dmg / 2.0) && lvl > 0 && lvl < 16 && as[1] == 0 && as[2] == 0 && respawn0.tick && statik.size() < 4) {
+                as[0]++;
+                bs[0] = lvl / 4 + (int) ((double) (Math.random() * ((double) lvl / 2)));
 
-                    statik.add(new Statik(((bs[0] * 2) + 1) * 10, (bs[0] + 1) * 10, bs[0] + 1, 1, 0, 950, getWidth(), height - 180, "CAT v" + bs[0], ((bs[0] + lvl / 2 + 1) * 360) + 120));
-                    respawn0.tick = false;
-                }else{
+                statik.add(new Statik(((bs[0] * 2) + 1) * 10, (bs[0] + 1) * 10, bs[0] + 1, 1, 0, 950, getWidth(), height - 180, "CAT v" + bs[0], ((bs[0] + lvl / 2 + 1) * 360) + 120));
+                respawn0.tick = false;
+            } else {
                 if (lvl > 2 && as[1] <= (dmg / 3.0) && respawn1.tick && lvl >= 3 && statik.size() < 3) {
                     as[1]++;
 
                     bs[1] = lvl / 4 + (int) ((double) (Math.random() * ((double) lvl / 2)));    //cont
                     statik.add(new Statik(((bs[1] * 2) + 1) * 15, (bs[1] + 1) * 15, bs[1] + 2, 1.3, 1, 850, getWidth(), height - 180, "DERP v" + bs[1], (bs[1] + lvl / 2 + 1) * 1680));
                     respawn1.tick = false;
-                }else{
-                if (lvl > 3 && as[2] < 2 && lvl > 10 && respawn2.tick && statik.size() < 2) {
-                    as[2]++;
+                } else {
+                    if (lvl > 3 && as[2] < 2 && lvl > 10 && respawn2.tick && statik.size() < 2) {
+                        as[2]++;
 
-                    bs[2] = lvl / 4 + (int) ((double) (Math.random() * ((double) lvl / 2)));
-                    statik.add(new Statik(((bs[2] * 2) + 1) * 30, (bs[2] + 1) * 30, bs[2] + 3, 1.2, 2, 350, getWidth(), height - 180, "Lamb v" + bs[2], (bs[2] + lvl / 2 + 1) * 7800));
-                    respawn2.tick = false;
-                }else{
-                if (!dragonSpawned && lvl > 15 && lvl < 25 && statik.size() < 1) {
-                    statik.add(new Statik(450, 450, 14, 1.4, 3, 550, getWidth(), height - 280, "Dragon", 850000));
-                    dragonSpawned = true;
-                }else{
-                if (!warlockSpawned && lvl > 19 && lvl < 30 && statik.size() < 1) {
-                    statik.add(new Statik(1050, 1050, 25, 2.0, 4, 850, getWidth(), height - 220, "Warlock", 8500000));
-                    warlockSpawned = true;
-                }else{
-                if (!metalSpawned && lvl > 26 && lvl < 35 && statik.size() < 1) {
-                    statik.add(new Statik(5000, 5000, 35, 2.4, 5, 650, getWidth(), height - 220, "???", 50000000));
-                    metalSpawned = true;
-                }}}}}}
-            
+                        bs[2] = lvl / 4 + (int) ((double) (Math.random() * ((double) lvl / 2)));
+                        statik.add(new Statik(((bs[2] * 2) + 1) * 30, (bs[2] + 1) * 30, bs[2] + 3, 1.2, 2, 350, getWidth(), height - 180, "Lamb v" + bs[2], (bs[2] + lvl / 2 + 1) * 7800));
+                        respawn2.tick = false;
+                    } else {
+                        if (!dragonSpawned && lvl > 15 && lvl < 25 && statik.size() < 1) {
+                            statik.add(new Statik(450, 450, 14, 1.4, 3, 550, getWidth(), height - 280, "Dragon", 850000));
+                            dragonSpawned = true;
+                        } else {
+                            if (!warlockSpawned && lvl > 19 && lvl < 30 && statik.size() < 1) {
+                                statik.add(new Statik(1050, 1050, 25, 2.0, 4, 850, getWidth(), height - 220, "Warlock", 8500000));
+                                warlockSpawned = true;
+                            } else {
+                                if (!metalSpawned && lvl > 26 && lvl < 35 && statik.size() < 1) {
+                                    statik.add(new Statik(5000, 5000, 35, 2.4, 5, 650, getWidth(), height - 220, "???", 50000000));
+                                    metalSpawned = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             drawStatik(g2d);
 
 
             g2d.setColor(new Color(20, 110, 200));
-            
-            
+
+
             if (alive) {
 
-                
-                    
-               
-                    
-                    for (int i = 0; i < p; i++) {
 
 
-                        ob[i].y += 1.0 + 1.0 * (double) 2.0;
 
-                    }
-                
+
+                for (int i = 0; i < p; i++) {
+
+
+                    ob[i].y += 1.0 + 1.0 * (double) 2.0;
+
+                }
+
                 g2d.setColor(new Color(20, 110, 200));
                 drawPoints(g2d);
                 drawBullets(g2d);
@@ -1241,33 +1323,32 @@ public void drawTooltips(Graphics2D g){
                     int rm = mayJump;
                     mayJump = 0;
                     for (int i = 0; i < rm; i++) {
-                        if (jumpstate > 0) {
-                            if (mayWalk > 0) {
-                                y += (jumpspeed);
-                                
-                                if (jumpspeed < 25) {
-                                    jumpspeed++;
-                                } else {
-                                    jumpstate = 0;
-                                    jumping = false;
-                                    jumpspeed = -25;
-                                }
+                        if (jumpstate > 0 && mayWalk > 0) {
+                            y += (jumpspeed);
+
+                            if (jumpspeed < 25) {
+                                jumpspeed++;
+                            } else {
+                                jumpstate = 0;
+                                jumping = false;
+                                jumpspeed = -25;
                             }
+
                         }
 
                     }
                 }
-                 if (xvar >= 0) {
+                if (xvar >= 0) {
                     g2d.drawImage(character[c - 1], null, (int) x, (int) y);
                 }
                 if (xvar < 0) {
                     g2d.drawImage(character[c + 5 - 1], null, (int) x, (int) y);
                 }
                 if (walking) {
-                    xvar = -2*Integer.signum((int)(x-wx));
-                
-                
-               
+                    xvar = -2 * Integer.signum((int) (x - wx));
+
+
+
                     g2d.fill3DRect(wx - 4, wy - 4, 8, 8, false);
                     if (mayWalk > 0) {
                         int rm = mayWalk;
@@ -1292,7 +1373,7 @@ public void drawTooltips(Graphics2D g){
                                 x = wx;
                             } else {
 
-                                x += (int) ((double) xvar * rm * 1.5* speed);
+                                x += (int) ((double) xvar * rm * 1.5 * speed);
                             }
                         }
 
@@ -1337,7 +1418,7 @@ public void drawTooltips(Graphics2D g){
                 hp = maxhp;
                 walking = false;
                 as = new int[6];
-                
+
             }
         }
     }
@@ -1349,36 +1430,41 @@ public void drawTooltips(Graphics2D g){
 
     @Override
     public void mousePressed(MouseEvent me) {
-        mx=me.getX();
-        my=me.getY();
-        if(me.getButton()==3){
+        mx = me.getX();
+        my = me.getY();
+        if (me.getButton() == 3) {
             mousePressed = true;
-                            Thread t = new ThreadII(this) {
+            Thread t = new ThreadII(this) {
 
-                                @Override
-                                public void run() {
-                                    while (mousePressed) {
-                                        while (!bulletcd.tick) {
-                                            try {
-                                                Thread.currentThread().sleep(5);
-                                            } catch (InterruptedException ex) {
-                                                Logger.getLogger(DrawPanel.class.getName()).log(Level.SEVERE, null, ex);
-                                            }
-                                        }
-                                        if(mousePressed){bulletcd = new CD((int) (1500.0 / ((double) (bulletspeed))), dP);
-                                        bulletcd.start();
-                                        bulletcd.tick = false;
-                                        while (bmod);
-                                        bmod = true;
-                                        bullet.add(new Bullet(1, (int) x + 40, (int) y + 40, mx, my, bulletspeed, Color.BLACK, dP, (float) (((double) my - (double) y) / ((double) mx - (double) x))));
+                @Override
+                public void run() {
+                    while (mousePressed) {
+                        try {
+                            Thread.currentThread().sleep(5);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(DrawPanel.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        if (bulletcd.tick) {
 
-                                        bmod = false;
-                                    }}
-                                }
-                            };
-                            t.start();
+
+                            if (mousePressed) {
+                                bulletcd = new CD((int) (1500.0 / ((double) (bulletspeed))), dP);
+                                bulletcd.start();
+                                bulletcd.tick = false;
+                                while (bmod);
+                                bmod = true;
+                                bullet.add(new Bullet(1, (int) x + 40, (int) y + 40, mx, my, bulletspeed, Color.BLACK, dP, (float) (((double) my - (double) y) / ((double) mx - (double) x))));
+
+                                bmod = false;
+                            }
+                        }
+                    }
+                }
+            };
+            t.start();
         }
     }
+
     @Override
     public void mouseReleased(MouseEvent me) {
         if (!paused) {
@@ -1417,14 +1503,14 @@ public void drawTooltips(Graphics2D g){
                 }
                 } else*/ {
                     if (me.getButton() == 3) {
-                        mousePressed=false;
+                        mousePressed = false;
                         if (placingspell > -1) {
                             if (placingspell == 0) {
                                 placingspell = -1;
                                 displayID = 0;
                                 display = 120;
-                                spellmx=mx;
-                                spellmy=my;
+                                spellmx = mx;
+                                spellmy = my;
                                 CD cd = spellcd.get(0);
                                 cd = new CD(5000, this);
                                 spellcd.set(0, cd);
@@ -1440,7 +1526,7 @@ public void drawTooltips(Graphics2D g){
                                     spellcd.get(1).start();
                                 }
                             }
-                        } 
+                        }
 
                     }
                 }
@@ -1459,13 +1545,13 @@ public void drawTooltips(Graphics2D g){
     @Override
     public void mouseDragged(MouseEvent me) {
         mx = me.getX();
-            my = me.getY();
+        my = me.getY();
     }
 
     @Override
     public void mouseMoved(MouseEvent me) {
-            mx = me.getX();
-            my = me.getY();
+        mx = me.getX();
+        my = me.getY();
     }
 }
 

@@ -125,17 +125,15 @@ public class KeyListena implements KeyListener {
     @Override
     public void keyReleased(KeyEvent ke) {
 
-        if (ke.getKeyCode() == 68) {
-            if(D.wx>D.x){
+        if (ke.getKeyCode() == 68 && (D.wx>D.x)){
             D.walking = false;
             D.wx = (int)D.x;
-            }
+            
         }
-        if (ke.getKeyCode() == 65) {
-            if(D.wx<=D.x){
+        if (ke.getKeyCode() == 65 && (D.wx<=D.x)){
                 D.walking = false;
             D.wx = (int)D.x;
-            }
+            
         }
         if (ke.getKeyCode() == 27) {
             D.placingspell=-1;
