@@ -38,6 +38,7 @@ import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Timer;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -108,9 +109,7 @@ public class Game extends JFrame {
         dp.setVisible(true);
         dp.setMinimumSize(new Dimension(getWidth(), getHeight()));
         this.setVisible(true);
-        this.setSize(getWidth() - 10, getHeight());
-        Thread t = new LooperGiver(dp);
-        t.start();
+        this.setSize(getWidth(), getHeight());
         this.setLayout(new BorderLayout());
         KeyListena k = new KeyListena(dp);
         this.addKeyListener(k);
@@ -128,75 +127,36 @@ public class Game extends JFrame {
     }
 }
 
-class LooperGiver extends Thread {
 
-    boolean tick = false;
-    public Object o;
-
-    public LooperGiver(Object o) {
-        this.o = o;
-    }
-    int i = 0;
-    long start_time = 0;
-
-    @Override
-    public synchronized void run() {
-        while (true) {
-            try {
-                i++;
-                if (start_time == 0) {
-                    start_time = System.currentTimeMillis();
-                }
-                if (!((DrawPanel) o).paused) {
-                    if (((DrawPanel) o).walking
-                            || (((DrawPanel) o).mayWalk) < 1) {
-                        ((DrawPanel) o).mayWalk += 2;
-                        if (i >= 3) {
-                            i = 0;
-                            ((DrawPanel) o).mayDraw = true;
-                        }
-                    }
-                    if (((DrawPanel) o).jumping) {
-                        ((DrawPanel) o).mayJump++;
-                    }
-
-                    ((DrawPanel) o).rainWalk += 2;
-                }
-                long end_time = System.currentTimeMillis();
-
-                long difference = end_time - start_time;
-
-                if (20.0 - difference > 0) {
-                    Thread.sleep(20 - difference);
-                } else {
-                    System.out.println("Your computer seems a little slow.");
-                }
-
-                start_time = System.currentTimeMillis();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(LooperGiver.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-}
-
-class PaintLoop extends Thread {
+class PaintLoop extends java.util.TimerTask{
 
     DrawPanel dP;
 
     public PaintLoop(DrawPanel dP) {
         this.dP = dP;
     }
-
+int i=0;
     @Override
-    public synchronized void run() {
-        while (true) {
-            try {
-                Thread.sleep(13);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(PaintLoop.class.getName()).log(Level.SEVERE, null, ex);
-            }
+    public void run() {
+        
+            i++;
+                
             dP.repaint();
+            if (!dP.paused) {
+                    if (dP.walking
+                            || (dP.mayWalk) < 1) {
+                        dP.mayWalk += 2;
+                        if (i >= 3) {
+                            i = 0;
+                            dP.mayDraw = true;
+                        }
+                    }
+                    if (dP.jumping) {
+                        dP.mayJump++;
+                    }
+
+                    dP.rainWalk += 2;
+                
         }
     }
 }
@@ -273,7 +233,14 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
         y = height - 180;
         System.out.println("y:" + y);
         generatePoints();
-        (new PaintLoop(this)).start();
+       // try {
+            //bg=ImageIO.read(new File("/home/andreas/Documents/kit.png"));
+      //  } catch (IOException ex) {
+       //     Logger.getLogger(DrawPanel.class.getName()).log(Level.SEVERE, null, ex);
+       // }
+        
+        Timer timer=new Timer();
+        timer.schedule(new PaintLoop(this),0,1000/60);
         try {
             getCharacter();
             getStatic();
@@ -529,7 +496,8 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
             
             if(lvl==2){
                 int[] spells={1};
-                tt.add(new Tooltip(spells,"Use your new spell by pressing 1 on the\nkeyboard. Place it using the right mouse button",(getWidth()/2+250),(getHeight()-380),1512));
+                if(tt.size()>0)tt.add(new Tooltip(spells,"Use your new spell by pressing 1 on the\nkeyboard. Place it using the right mouse button",(getWidth()/2+250),(getHeight()-480),1512));
+                else tt.add(new Tooltip(spells,"Use your new spell by pressing 1 on the\nkeyboard. Place it using the right mouse button",(getWidth()/2+250),(getHeight()-280),1512));
             }
 
         }
@@ -1076,12 +1044,8 @@ public void drawTooltips(Graphics2D g){
 
             g.setColor(b.color);
             g.fillRect((int) b.x, (int) b.y, 15, 5);
-            CopyOnWriteArrayList<Statik> statik1;
-            synchronized (statik) {
-                statik1 = statik;
-            }
             Random r = new Random(1000);
-            for (Statik s : statik1) {
+            for (Statik s : statik) {
                 if (b != null) {
                     if (s.hp > 0) {
                         if ((b.x + 15) >= s.x - 100
@@ -1097,7 +1061,6 @@ public void drawTooltips(Graphics2D g){
                                 System.out.println(r.nextInt() + "CRIT" + (((double) crit) * 1000.0));
                             }
                             if (s.hp <= 0) {
-                                statik1.remove(s);
                                 statik.remove(s);
                                 giveXP(s.xp);
 
@@ -1114,16 +1077,13 @@ public void drawTooltips(Graphics2D g){
                     }
                 }
             }
-            synchronized (statik) {
-                statik = statik1;
-            }
 
             if (b.x > getWidth() || b.y < 0 || b.y > getHeight() || b.x < 0 || (b.wx > b.x) && (b.wx - b.x <= 1 || (b.wx - b.x < 0 && b.x - b.wx <= 1)) && ((b.y - b.wy < 0 && b.wy - b.y <= 1) || (b.y > b.wy) && b.y - b.wy <= 1)) {
                 b.nullify = true;
 
             } else {
-                b.x += 4 * b.speed * b.xspeed;
-                b.y += 4 * b.speed * (b.yspeed);
+                b.x += 8 * b.speed * b.xspeed;
+                b.y += 8 * b.speed * (b.yspeed);
             }
 
 
@@ -1142,13 +1102,9 @@ public void drawTooltips(Graphics2D g){
     public void drawStatik(Graphics2D g) {
         if (!drawingStatik) {
             drawingStatik = true;
-            CopyOnWriteArrayList<Statik> statik1;
-            synchronized (statik) {
-                statik1 = statik;
-            }
-            synchronized (statik1) {
+            
                 int i = 0;
-                for (Statik s : statik1) {
+                for (Statik s : statik) {
                     i++;
                     if (s.hp != 0) {
                         int picWidth = enemies[s.picID].getWidth();
@@ -1184,22 +1140,18 @@ public void drawTooltips(Graphics2D g){
                                     s.x += s.speed;
                                 }
                             }
-                            if (i == statik1.size()) {
+                            if (i == statik.size()) {
                                 statikwalk.tick = false;
                             }
                         }
                     } else {
-                        statik1.remove(s);
+                        statik.remove(s);
                         if (s.picID != 3) {
                             as[s.picID]--;
                         }
                     }
                 }
-            }
-            synchronized (statik) {
-                statik = statik1;
-            }
-            statik1 = null;
+            
             drawingStatik = false;
         }
     }
@@ -1214,6 +1166,7 @@ public void drawTooltips(Graphics2D g){
     public volatile int spellmx,spellmy;
     public volatile boolean warlockSpawned=false;
     public volatile boolean metalSpawned=false;
+    //BufferedImage bg;
     @Override
     public void paintComponent(Graphics g) {
         if (!paused) {
@@ -1221,82 +1174,67 @@ public void drawTooltips(Graphics2D g){
             if (first) {
                 g.setFont(new Font("Helvetica", Font.PLAIN, 16));
                 first = false;
+            
             }
             g2d.setColor(new Color(5, 0, 255));
             g2d.fillRect(0, 0, width, getHeight() - 50);
             g2d.setColor(new Color(20, 200, 85));
             g2d.fillRect(0, getHeight() - 50, width, getHeight());
-            synchronized (statik) {
+                        //g2d.drawImage(bg, null, 0,0-(bg.getHeight()-height)+400);
                 if (as[0] <= (dmg / 2.0) && lvl > 0 && lvl < 16 && as[1] == 0 && as[2] == 0 && respawn0.tick && statik.size() < 4) {
                     as[0]++;
                     bs[0] = lvl / 4 + (int) ((double) (Math.random() * ((double) lvl / 2)));
 
                     statik.add(new Statik(((bs[0] * 2) + 1) * 10, (bs[0] + 1) * 10, bs[0] + 1, 1, 0, 950, getWidth(), height - 180, "CAT v" + bs[0], ((bs[0] + lvl / 2 + 1) * 360) + 120));
                     respawn0.tick = false;
-                }
+                }else{
                 if (lvl > 2 && as[1] <= (dmg / 3.0) && respawn1.tick && lvl >= 3 && statik.size() < 3) {
                     as[1]++;
 
                     bs[1] = lvl / 4 + (int) ((double) (Math.random() * ((double) lvl / 2)));    //cont
                     statik.add(new Statik(((bs[1] * 2) + 1) * 15, (bs[1] + 1) * 15, bs[1] + 2, 1.3, 1, 850, getWidth(), height - 180, "DERP v" + bs[1], (bs[1] + lvl / 2 + 1) * 1680));
                     respawn1.tick = false;
-                }
+                }else{
                 if (lvl > 3 && as[2] < 2 && lvl > 10 && respawn2.tick && statik.size() < 2) {
                     as[2]++;
 
                     bs[2] = lvl / 4 + (int) ((double) (Math.random() * ((double) lvl / 2)));
                     statik.add(new Statik(((bs[2] * 2) + 1) * 30, (bs[2] + 1) * 30, bs[2] + 3, 1.2, 2, 350, getWidth(), height - 180, "Lamb v" + bs[2], (bs[2] + lvl / 2 + 1) * 7800));
                     respawn2.tick = false;
-                }
+                }else{
                 if (!dragonSpawned && lvl > 15 && lvl < 25 && statik.size() < 1) {
                     statik.add(new Statik(450, 450, 14, 1.4, 3, 550, getWidth(), height - 280, "Dragon", 850000));
                     dragonSpawned = true;
-                }
+                }else{
                 if (!warlockSpawned && lvl > 19 && lvl < 30 && statik.size() < 1) {
                     statik.add(new Statik(1050, 1050, 25, 2.0, 4, 850, getWidth(), height - 220, "Warlock", 8500000));
                     warlockSpawned = true;
-                }
+                }else{
                 if (!metalSpawned && lvl > 26 && lvl < 35 && statik.size() < 1) {
                     statik.add(new Statik(5000, 5000, 35, 2.4, 5, 650, getWidth(), height - 220, "???", 50000000));
                     metalSpawned = true;
-                }
-            }
+                }}}}}}
+            
             drawStatik(g2d);
 
 
             g2d.setColor(new Color(20, 110, 200));
-            if (c % 2 == 0) {
-                g2d.setColor(new Color(180, 90, 45));
-            }
-            if (walking) {
-                g2d.fill3DRect(wx - 4, wy - 4, 8, 8, false);
-            }
+            
+            
             if (alive) {
 
-                if (wx < x) {
-                    xvar = -2;
-                }
-                if (wx > x) {
-                    xvar = 2;
-                }
-                if (xvar >= 0) {
-                    g2d.drawImage(character[c - 1], null, (int) x, (int) y);
-                }
-                if (xvar < 0) {
-                    g2d.drawImage(character[c + 5 - 1], null, (int) x, (int) y);
-                }
-                if (rainWalk > 0) {
-                    int rm = rainWalk;
-                    rainWalk = 0;
+                
+                    
+               
+                    
                     for (int i = 0; i < p; i++) {
 
 
-                        ob[i].y += 1.0 + 1.0 * (double) rm;
+                        ob[i].y += 1.0 + 1.0 * (double) 2.0;
 
                     }
-                }
+                
                 g2d.setColor(new Color(20, 110, 200));
-                g2d.setColor(new Color(g2d.getColor().getBlue(), g2d.getColor().getRed(), g2d.getColor().getGreen()));
                 drawPoints(g2d);
                 drawBullets(g2d);
                 if (jumping && mayJump > 0) {
@@ -1306,6 +1244,7 @@ public void drawTooltips(Graphics2D g){
                         if (jumpstate > 0) {
                             if (mayWalk > 0) {
                                 y += (jumpspeed);
+                                
                                 if (jumpspeed < 25) {
                                     jumpspeed++;
                                 } else {
@@ -1318,7 +1257,18 @@ public void drawTooltips(Graphics2D g){
 
                     }
                 }
+                 if (xvar >= 0) {
+                    g2d.drawImage(character[c - 1], null, (int) x, (int) y);
+                }
+                if (xvar < 0) {
+                    g2d.drawImage(character[c + 5 - 1], null, (int) x, (int) y);
+                }
                 if (walking) {
+                    xvar = -2*Integer.signum((int)(x-wx));
+                
+                
+               
+                    g2d.fill3DRect(wx - 4, wy - 4, 8, 8, false);
                     if (mayWalk > 0) {
                         int rm = mayWalk;
                         mayWalk = 0;
@@ -1334,7 +1284,7 @@ public void drawTooltips(Graphics2D g){
                                 x = wx;
                             } else {
 
-                                x += (int) ((double) xvar * rm * speed);
+                                x += (int) ((double) xvar * 1.5 * rm * speed);
                             }
                         }
                         if (xvar < 0) {
@@ -1342,7 +1292,7 @@ public void drawTooltips(Graphics2D g){
                                 x = wx;
                             } else {
 
-                                x += (int) ((double) xvar * rm * speed);
+                                x += (int) ((double) xvar * rm * 1.5* speed);
                             }
                         }
 
@@ -1387,9 +1337,7 @@ public void drawTooltips(Graphics2D g){
                 hp = maxhp;
                 walking = false;
                 as = new int[6];
-                synchronized (statik) {
-                    statik = new CopyOnWriteArrayList<Statik>();
-                }
+                
             }
         }
     }
@@ -1405,24 +1353,24 @@ public void drawTooltips(Graphics2D g){
         my=me.getY();
         if(me.getButton()==3){
             mousePressed = true;
-                            Thread t = new LooperGiver(this) {
+                            Thread t = new ThreadII(this) {
 
                                 @Override
                                 public void run() {
                                     while (mousePressed) {
                                         while (!bulletcd.tick) {
                                             try {
-                                                Thread.sleep(5);
+                                                Thread.currentThread().sleep(5);
                                             } catch (InterruptedException ex) {
                                                 Logger.getLogger(DrawPanel.class.getName()).log(Level.SEVERE, null, ex);
                                             }
                                         }
-                                        if(mousePressed){bulletcd = new CD((int) (1500.0 / ((double) (bulletspeed))), (DrawPanel) o);
+                                        if(mousePressed){bulletcd = new CD((int) (1500.0 / ((double) (bulletspeed))), dP);
                                         bulletcd.start();
                                         bulletcd.tick = false;
                                         while (bmod);
                                         bmod = true;
-                                        bullet.add(new Bullet(1, (int) x + 40, (int) y + 40, mx, my, bulletspeed, Color.BLACK, (DrawPanel) o, (float) (((double) my - (double) y) / ((double) mx - (double) x))));
+                                        bullet.add(new Bullet(1, (int) x + 40, (int) y + 40, mx, my, bulletspeed, Color.BLACK, dP, (float) (((double) my - (double) y) / ((double) mx - (double) x))));
 
                                         bmod = false;
                                     }}
@@ -1431,7 +1379,6 @@ public void drawTooltips(Graphics2D g){
                             t.start();
         }
     }
-    ThreadII t2;
     @Override
     public void mouseReleased(MouseEvent me) {
         if (!paused) {
@@ -1525,11 +1472,8 @@ public void drawTooltips(Graphics2D g){
 class ThreadII extends Thread {
 
     DrawPanel dP;
-    int mx, my;
 
-    public ThreadII(DrawPanel dP, int x, int y) {
+    public ThreadII(DrawPanel dP) {
         this.dP = dP;
-        this.mx = x;
-        this.my = y;
     }
 }

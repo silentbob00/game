@@ -27,7 +27,7 @@ public class CD extends Thread{
     public synchronized void run() {
         while (true) {
             try {
-                Thread.sleep(cd);
+                Thread.currentThread().sleep(cd);
                 tick = true;
             } catch (InterruptedException ex) {
                 Logger.getLogger(CD.class.getName()).log(Level.SEVERE, null, ex);
