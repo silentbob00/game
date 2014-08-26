@@ -331,7 +331,7 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
         }
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter(f));
-            out.write("OLOL:5;");
+            out.write("OLOL:7;");
             out.write(maxhp + ";");
             out.write(lvl + ";");
             out.write(maxxp + ";");
@@ -346,6 +346,8 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
             out.write(abilityPower + ";");
             out.flush();
             out.write(bs[0] + ";" + bs[1] + ";" + bs[2] + ";");
+            out.write(statpoints+";");
+            out.write(sp[0] + ";" + sp[1] + ";" + sp[2] + ";"+sp[3]+";");
 
             out.flush();
             out.close();
@@ -362,7 +364,7 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
                 BufferedReader in = new BufferedReader(new FileReader(f));
                 try {
                     String[] kit = in.readLine().split(";");
-                    if (kit[0].contains("OLOL") && kit[0].split(":")[1].equals("5")) {
+                    if (kit[0].contains("OLOL") && kit[0].split(":")[1].equals("7")) {
                         maxhp = Integer.parseInt(kit[1]);
                         lvl = Integer.parseInt(kit[2]);
                         maxxp = Integer.parseInt(kit[3]);
@@ -390,49 +392,22 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
                                 bs[2] = Integer.parseInt(kit[14]);
                             }
                         }
+                        statpoints=Integer.parseInt(kit[16]);
+                        sp[0]=Integer.parseInt(kit[16]);
+                        sp[1]=Integer.parseInt(kit[17]);
+                        sp[2]=Integer.parseInt(kit[18]);
+                        sp[3]=Integer.parseInt(kit[19]);
                         bulletcd.cd = (int) ((double) 1500.0 / (double) bulletspeed);
                         abilityPower = (int) lvl + lvl * 2;
                         if (!bulletcd.isAlive()) {
                             bulletcd.start();
-                        } else {
-                            if (kit[0].contains("OLOL") && kit[0].split(":")[1].equals("4")) {
-                                maxhp = Integer.parseInt(kit[1]);
-                                lvl = Integer.parseInt(kit[2]);
-                                maxxp = Integer.parseInt(kit[3]);
-                                xp = Integer.parseInt(kit[4]);
-                                dmg = Double.parseDouble(kit[5]);
-                                speed = Double.parseDouble(kit[6]);
-                                bulletspeed = Double.parseDouble(kit[7]);
-                                if (kit.length > 8) {
-                                    System.out.println(kit[8]);
-                                    if (!kit[8].contains("-")) {
-                                        personalhigh = Long.parseLong(kit[8]);
-                                    } else {
-                                        personalhigh = 0;
-                                    }
-                                }
-                                chosenSpell = Integer.parseInt(kit[9]);
-                                if (kit.length > 10) {
-                                    bs[0] = Integer.parseInt(kit[10]);
-                                    if (kit.length > 11) {
-                                        bs[1] = Integer.parseInt(kit[11]);
-                                    }
-                                    if (kit.length > 12) {
-                                        bs[2] = Integer.parseInt(kit[12]);
-                                    }
-                                }
-                                bulletcd.cd = (int) ((double) 1500.0 / (double) bulletspeed);
-                                abilityPower = (int) lvl + lvl * 2;
-
-                                dmg = 1 + (0.1 + (0.01 * lvl)) * lvl;
-                                if (!bulletcd.isAlive()) {
-                                    bulletcd.start();
-                                }
-                            } else {
-                                f.delete();
-                            }
                         }
-                    }
+                    }else {
+                            
+                                f.delete();
+                            
+                        }
+                    
                     in.close();
 
                 } catch (IOException ex) {
@@ -479,20 +454,24 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
             remainder = xp - maxxp;
         }
         if (remainder > -1) {
+            if(lvl>=8)statpoints+=3;
+            if(lvl==8){
+                tt.add(new Tooltip(new int[0], "By pausing the game ( P ) you can spend your new stat points!", (getWidth() / 2 + 250), (getHeight() - 280), 1500));
+            }
             xp = remainder;
             lvl++;
             score += 80 + lvl;
             maxxp = 80 * lvl * lvl * lvl;
-            speed = 1.0 + (double) lvl * ((double) lvl / 8.0) / 30.0;
-            bulletspeed = 2.0 + ((double) lvl * ((double) lvl / 8.0) / 20.0);
+            speed = 1.0 + (double) lvl * ((double) lvl / 20.0) / 55.0 +sp[3]*0.15;
+            bulletspeed = 2.0 + ((double) lvl * ((double) lvl / 12.0) / 35.0)+sp[3]*0.15;
             bulletcd.cd = (int) (2000.0 / (double) bulletspeed);
             int t = (int) ((double) speed * 100.0);
             speed = (double) t / 100.0;
-            dmg = (0.1 + (0.01 * lvl)) * lvl;
+            dmg = (0.1 + (0.01 * lvl/2)) * lvl+sp[0]*0.25;
             t = (int) ((double) (dmg * 100.0));
             dmg = (double) t / 100.0;
-            maxhp = 17 + 3 * lvl;
-            abilityPower = (int) lvl + lvl * 2;
+            maxhp = (int)(17 + 3 * lvl + sp[1]*6);
+            abilityPower = (int) lvl + lvl * 2 + sp[2]*12;
             crit += 0.05f / lvl;
             hp = maxhp;
             if (lvl == 8) {
@@ -502,11 +481,11 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
             }
 
             if (lvl == 2) {
-                int[] spells = {1};
+                int[] spells = {0};
                 if (tt.size() > 0) {
-                    tt.add(new Tooltip(spells, "Use your new spell by pressing 1 on the\nkeyboard. Place it using the right mouse button", (getWidth() / 2 + 250), (getHeight() - 480), 1512));
+                    tt.add(new Tooltip(spells, "Use your new spell by pressing 1 on the\nkeyboard. Place it using the right mouse button", (getWidth() / 2 + 250), (getHeight() - 480), 1000));
                 } else {
-                    tt.add(new Tooltip(spells, "Use your new spell by pressing 1 on the\nkeyboard. Place it using the right mouse button", (getWidth() / 2 + 250), (getHeight() - 280), 1512));
+                    tt.add(new Tooltip(spells, "Use your new spell by pressing 1 on the\nkeyboard. Place it using the right mouse button", (getWidth() / 2 + 250), (getHeight() - 280), 1000));
                 }
             }
 
@@ -554,14 +533,17 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
     }
     ArrayList<BufferedImage> icon;
     ArrayList<BufferedImage> spell;
-    ArrayList<CD> spellcd;
+    volatile ArrayList<CD> spellcd;
     volatile int placingspell = -1;
     volatile int display = 0;
     volatile int displayID = -1;
     BufferedImage dragon;
     BufferedImage placer;
     public boolean damageDone = false;
-
+    public BufferedImage freezeCage;
+    volatile int statpoints=0;
+    //dmg,abilityPower,speed,hp
+    volatile int[] sp={0,0,0,0};
     public void arrangeSpells() {
         try {
             icon = new ArrayList<BufferedImage>();
@@ -572,14 +554,18 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
             spell.add(ImageIO.read(new File("character/spell0/spell.png")));
             icon.add(ImageIO.read(new File("character/spell2/icon.png")));
             icon.add(ImageIO.read(new File("character/spell3/icon.png")));
-            spellcd.add(new CD(5000, this));
+            icon.add(ImageIO.read(new File("character/spell4/icon.png")));
+            freezeCage=ImageIO.read(new File("character/spell4/cage.png"));
+            spellcd.add(new CD(6000, this));
             spellcd.get(0).start();
-            spellcd.add(new CD(12000, this));
+            spellcd.add(new CD(13000, this));
             spellcd.get(1).start();
-            spellcd.add(new CD(7500, this));
+            spellcd.add(new CD(9000, this));
             spellcd.get(2).start();
-            spellcd.add(new CD(15000, this));
+            spellcd.add(new CD(19000, this));
             spellcd.get(3).start();
+            spellcd.add(new CD(14000, this));
+            spellcd.get(4).start();
             placer = ImageIO.read(new File("character/logo.png"));
         } catch (IOException ex) {
             Logger.getLogger(DrawPanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -662,6 +648,7 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
                     }
                 }
             }
+            
             if (!spellcd.get(0).tick) {
                 g.setColor(Color.RED);
                 g.drawLine(20, getHeight() - 70, 85, getHeight() - 5);
@@ -725,6 +712,35 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
                     g.drawLine(180, getHeight() - 70, 245, getHeight() - 5);
                 }
             }
+            if (lvl >= 10) {
+                g.drawImage(icon.get(4), null, 260, getHeight() - 70);
+                if (mx > (260)
+                    && mx < (icon.get(4).getWidth() + (260))
+                    && my > getHeight() - 70
+                    && my < ((getHeight() - 70) + icon.get(4).getHeight())) {
+                if(spelltt==-1){
+                spelltt = 4;
+
+
+                   tt.add(new Tooltip(4, "4: Freeze\nUse this by pressing 4 on your\nkeyboard. \nProceed by right-clicking on the enemy you\nwant to freeze.", mx, my - 180, -1));
+                    
+            }} else {
+                if (spelltt == 4) {
+                    for (Tooltip t : tt) {
+                        if (t.spellID == 4) {
+                            if (t.life <= -1) {
+                                t.life = 140;
+                                spelltt=-1;
+                            }
+                        }
+                    }
+                }
+            }
+                if (!spellcd.get(4).tick) {
+                    g.setColor(Color.RED);
+                    g.drawLine(260, getHeight() - 70, 325, getHeight() - 5);
+                }
+            }
         }
         if (display > 0) {
             g.drawImage(spell.get(displayID), null, spellmx - (spell.get(displayID).getWidth() / 2), spellmy - (spell.get(displayID).getHeight() / 2));
@@ -734,7 +750,7 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
                             && (spellmx) <= s.x + enemies[s.picID].getWidth()
                             && (spellmy + spell.get(0).getHeight()) >= s.y
                             && (spellmy) <= s.y + enemies[s.picID].getHeight()) {
-                        s.hp -= 3 + ((double) (abilityPower / 2));
+                        s.hp -= 3 + ((double) ((double)abilityPower / 3.5));
                         if (s.hp <= 0) {
                             statik.remove(s);
                             giveXP(s.xp);
@@ -1036,7 +1052,7 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
                 boolean bxp = false;
                 boolean bplushp = false;*/
                 if (bdmg && invincible <= 0) {
-                    hp -= 5 + 13 * (double) lvl / 30.0;
+                    hp -= 5 + 13 * (double) lvl / 35.0;
                     if (hp <= 0) {
                         walking = false;
 
@@ -1241,7 +1257,7 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
                         if(s.boss==0 && fireCD.tick){
                             // public Bullet(int dmg, int x, int y, int wx, int wy, double speed, Color color, DrawPanel dP, double k,int type) {
     fireCD.tick=false;
-                            evilBullet.add(new Bullet(20,(int)s.x,(int)s.y,(int)x,(int)y,1.0,Color.RED,this,(float) (((double) y - (double) s.y) / ((double) x - (double) s.x)),1));
+                            evilBullet.add(new Bullet(20,(int)s.x,(int)s.y-40,(int)x,(int)y,1.0,Color.RED,this,(float) (((double) y - (double) s.y) / ((double) x - (double) s.x)),1));
                             
                         }
                     }
@@ -1255,10 +1271,14 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
                     g.drawImage(enemies[s.picID], null, (int) s.x - picWidth / 2, (int) s.y - picHeight / 2);
                     g.setColor(new Color(128, 127, 10));
                     g.drawChars(s.name.toCharArray(), 0, s.name.toCharArray().length, (int) s.x - 100 + enemies[s.picID].getWidth() / 2 - s.textwidth / 2, (int) s.y - enemies[s.picID].getHeight() / 2 - 60);
+                    if(s.frozen>0){
+                        g.drawImage(freezeCage,null,(int)s.x-picWidth/2-30,(int)s.y-picHeight/2-60);
+                    s.frozen--;
+                    }
                     if (s.x >= x && (s.x - x) <= 5 || s.x <= x && (x - s.x) <= 5
                             && (((y - s.y) > 0 && (y - s.y) < 3)
                             || ((y - s.y) <= 0 && ((y - s.y) >= -3)))) {
-                        if (s.maydmg && invincible <= 0) {
+                        if (s.maydmg && invincible <= 0 && s.frozen==0) {
                             hp -= s.dmg;
                             s.maydmg = false;
                         }
@@ -1267,7 +1287,7 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
                             walking = false;
                         }
                     }
-                    if (statikwalk.tick) {
+                    if (statikwalk.tick && s.frozen==0) {
                         if (s.x > x) {
                             s.x -= s.speed;
                         } else {
@@ -1499,6 +1519,40 @@ if(hardcore){
                 as = new int[6];
 
             }
+        }else{
+            Graphics2D g2d=(Graphics2D)g;
+            
+            
+            g.setColor(new Color(40,40,40));
+            g.fillRect(0, 0, getWidth(), getHeight());
+            drawStats(g2d);
+            g.setColor(Color.WHITE);
+            g.drawString("Statpoints: "+statpoints, 320, 120);
+            g.drawString("DMG: "+sp[0],320,440);
+            g.drawString("HP: "+sp[1],320,460);
+            g.drawString("Ability Power: "+sp[2],320,480);
+            g.drawString("SPEED: "+sp[3],320,500);
+           if(statpoints>0){
+              g.setColor(new Color(40,88,90));
+                g.fillRect(450,430, 100, 20);
+                
+                g.fillRect(450,450, 100, 20);
+                
+                g.fillRect(450,470, 100, 20);
+                
+                g.fillRect(450,490, 100, 20);
+                g.setColor(new Color(30,28,10));
+                g.drawRect(450,430, 100, 20);
+                
+                g.drawRect(450,450, 100, 20);
+                
+                g.drawRect(450,470, 100, 20);
+                
+                g.drawRect(450,490, 100, 20);
+                
+           }
+           
+            //TODO
         }
     }
 
@@ -1511,6 +1565,7 @@ if(hardcore){
     public void mousePressed(MouseEvent me) {
         mx = me.getX();
         my = me.getY();
+        if(!paused){
         if (me.getButton() == 3) {
             mousePressed = true;
             Thread t = new ThreadII(this) {
@@ -1541,6 +1596,45 @@ if(hardcore){
                 }
             };
             t.start();
+        }
+        }else{
+            /*g.fillRect(250,120, 100, 20);
+                
+                g.fillRect(250,140, 100, 20);
+                
+                g.fillRect(250,160, 100, 20);
+                
+                g.fillRect(250,180, 100, 20);*/
+            if(statpoints>0 && mx>=450 && mx <=550 && my>=430 && my<=450){
+                sp[0]++;
+                statpoints--;
+            }else{
+                if(statpoints>0 && mx>=450 && mx <=550 && my>=450 && my<=470){
+                sp[1]++;
+                statpoints--;
+            }else{
+                    if(statpoints>0 && mx>=450 && mx <=550 && my>=470 && my<=490){
+                sp[2]++;
+                statpoints--;
+            }else{
+                        if(statpoints>0 && mx>=450 && mx <=550 && my>=490 && my<=510){
+                sp[3]++;
+                statpoints--;
+            }
+                    }
+                }
+            }
+            speed = 1.0 + (double) lvl * ((double) lvl / 20.0) / 55.0 +sp[3]*0.15;
+            bulletspeed = 2.0 + ((double) lvl * ((double) lvl / 12.0) / 35.0)+sp[3]*0.15;
+            bulletcd.cd = (int) (2000.0 / (double) bulletspeed);
+            int t = (int) ((double) speed * 100.0);
+            speed = (double) t / 100.0;
+            dmg = (0.1 + (0.01 * lvl/2)) * lvl+sp[0]*0.25;
+            t = (int) ((double) (dmg * 100.0));
+            dmg = (double) t / 100.0;
+            maxhp = (int)(17 + 3 * lvl + sp[1]*6);
+            abilityPower = (int) lvl + lvl * 2 + sp[2]*12;
+            save();
         }
     }
 
@@ -1591,7 +1685,8 @@ if(hardcore){
                                 spellmx = mx;
                                 spellmy = my;
                                 CD cd = spellcd.get(0);
-                                cd = new CD(5000, this);
+                                int i=cd.cd;
+                                cd = new CD(i, this);
                                 spellcd.set(0, cd);
                                 spellcd.get(0).start();
                             } else {
@@ -1600,9 +1695,28 @@ if(hardcore){
                                     walking = false;
                                     placingspell = -1;
                                     CD cd = spellcd.get(1);
-                                    cd = new CD(12000, this);
+                                    int i=cd.cd;
+                                    cd = new CD(i, this);
                                     spellcd.set(1, cd);
                                     spellcd.get(1).start();
+                                }else{
+                                    if(placingspell==4){
+                                        for(Statik s:statik){
+                                            if(s.x>(me.getX()-100) && s.x<(me.getX()+100)){
+                                                s.frozen+=abilityPower*3;
+                                                System.out.println("Froze statik");
+                                            }
+                                        }
+                                        placingspell=-1;
+                                        
+                                                CD cd=spellcd.get(4);
+                                                int i=cd.cd;
+                                                cd=new CD(
+                                                i
+                                                ,this);
+                                                spellcd.set(4,cd);
+                                        spellcd.get(4).start();
+                                    }
                                 }
                             }
                         }

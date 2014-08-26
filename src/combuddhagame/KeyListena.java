@@ -100,6 +100,11 @@ public class KeyListena implements KeyListener {
                                     D.spellcd.get(D.chosenSpell).tick = false;
                                 }
                             } else {
+                                if(ke.getKeyCode()==52){
+                                    if(D.lvl>=10 && D.placingspell==-1 && D.spellcd.get(4).tick){
+                                        D.placingspell=4;
+                                    }
+                                }else{
                                 if (D.choosing) {
                                     switch (ke.getKeyCode()) {
                                         case 72:
@@ -110,9 +115,13 @@ public class KeyListena implements KeyListener {
                                         case 73:
                                             D.chosenSpell = 3;
                                             D.choosing = false;
-                                            D.tt.remove(D.tt.size()-1);
+                                            int i;
+                                            for(i=0;i<D.tt.size();i++){
+                                                if(D.tt.get(i).message.contains(("Choose carefully")))break;
+                                            }
+                                            D.tt.remove(i);
                                             break;
-                                    }
+                                    }}
                                 }
                             }
                         }

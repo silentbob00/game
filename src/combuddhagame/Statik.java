@@ -22,6 +22,7 @@ public class Statik {
     public String name = "DERP";
     public volatile int textwidth;
     public int xp;
+    public volatile int frozen=0;
     public int boss;
     public Statik(int hp, int maxhp, int dmg, double speed, int id, int cd, int x,int y, String name, int xp) {
         this.hp = hp;

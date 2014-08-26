@@ -8,3 +8,12 @@ if [ "$1" == "-test" ]; then
 cd release;
 java -jar game-*.jar;
 fi
+if [ "$1" == "-git" ]; then
+git add -A ./;
+git commit -m ${@:2};
+git push -u game source;
+cd release;
+git add -A ./;
+git commit -m ${@:2};
+git push -u game master;
+fi

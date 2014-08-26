@@ -58,7 +58,7 @@ public class Launcher extends javax.swing.JFrame {
                 BufferedReader in = new BufferedReader(new FileReader(f));
                 try {
                     String[] kit = in.readLine().split(";");
-                    if (kit[0].contains("OLOL") && kit[0].split(":")[1].equals("5")) {
+                    if (kit[0].contains("OLOL") && kit[0].split(":")[1].equals("7")) {
                         loaded=true;
                         maxhp = Integer.parseInt(kit[1]);
                         lvl = Integer.parseInt(kit[2]);
@@ -82,34 +82,11 @@ public class Launcher extends javax.swing.JFrame {
                         abilityPower = (int) lvl + lvl * 2;
                         
                         } else {
-                            if (kit[0].contains("OLOL") && kit[0].split(":")[1].equals("4")) {
-                            loaded=true;
-                            maxhp = Integer.parseInt(kit[1]);
-                                lvl = Integer.parseInt(kit[2]);
-                                maxxp = Integer.parseInt(kit[3]);
-                                xp = Integer.parseInt(kit[4]);
-                                dmg = Double.parseDouble(kit[5]);
-                                speed = Double.parseDouble(kit[6]);
-                                bulletspeed = Double.parseDouble(kit[7]);
-                                if (kit.length > 8) {
-                                    System.out.println(kit[8]);
-                                    if (!kit[8].contains("-")) {
-                                        personalhigh = Long.parseLong(kit[8]);
-                                    } else {
-                                        personalhigh = 0;
-                                    }
-                                }
-                                chosenSpell = Integer.parseInt(kit[9]);
-                                
-                                abilityPower = (int) lvl + lvl * 2;
-
-                                dmg = 1 + (0.1 + (0.01 * lvl)) * lvl;
-                                
-                            } else {
+                            
                                 f.delete();
                             }
                         
-                    }
+                    
                     in.close();
 
                 } catch (IOException ex) {
