@@ -21,6 +21,7 @@ public class Bullet {
     public double xspeed;
     public double yspeed;
     public volatile boolean nullify = false;
+    int type;
 
     public Bullet(int dmg, int x, int y, int wx, int wy, double speed, Color color, DrawPanel dP, double k) {
         this.dmg = dmg;
@@ -29,6 +30,23 @@ public class Bullet {
         this.wx = wx;
         this.wy = wy;
         this.speed = speed;
+        type=0;
+        this.color = color;
+        this.k = k;
+        int xdiff = wx - x;
+        int ydiff = wy - y;
+        double length = (int) Math.sqrt(Math.pow(wx - x, 2) + Math.pow(wy - y, 2));
+        xspeed = xdiff / length;
+        yspeed = ydiff / length;
+    }
+    public Bullet(int dmg, int x, int y, int wx, int wy, double speed, Color color, DrawPanel dP, double k,int type) {
+        this.dmg = dmg;
+        this.x = x;
+        this.y = y;
+        this.wx = wx;
+        this.wy = wy;
+        this.speed = speed;
+        this.type=type;
         this.color = color;
         this.k = k;
         int xdiff = wx - x;

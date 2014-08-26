@@ -195,12 +195,13 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
     public BufferedImage[] character = new BufferedImage[10];
     public volatile int rainWalk = 0;
     public volatile CopyOnWriteArrayList<Tooltip> tt = new CopyOnWriteArrayList<Tooltip>();
-
+    public BufferedImage fireBall;
     public void getCharacter() throws IOException {
 
         for (int i = 1; i <= 10; i++) {
             character[i - 1] = ImageIO.read(new File("character/" + i + ".png"));
         }
+        fireBall=ImageIO.read(new File("character/fireball.png"));
 
     }
     volatile CopyOnWriteArrayList<Statik> statik = new CopyOnWriteArrayList<Statik>();
@@ -218,7 +219,7 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
     public int height, width;
     public boolean wasd;
     public boolean hardcore;
-    
+    public CD fireCD;
     public DrawPanel(int width, int height, boolean wasd, boolean hardcore) {
         //super();
         super(new FlowLayout(FlowLayout.LEADING));
@@ -234,6 +235,8 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
         y = height - 180;
         System.out.println("y:" + y);
         generatePoints();
+        fireCD=(new CD(5000,this));
+        evilBullet=new CopyOnWriteArrayList<Bullet>();
         // try {
         //bg=ImageIO.read(new File("/home/andreas/Documents/kit.png"));
         //  } catch (IOException ex) {
@@ -946,10 +949,6 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
                             if (bxp) {
                                 int c = s.name.length();
 
-                                if (s.picID != 3) {
-                                    bs[s.picID]++;
-                                }
-
 
                                 if (s.picID == 0) {
                                     s = (new Statik((s.hp / s.maxhp) * ((bs[0] * 2) + 1) * 5, (bs[0] * 2) * 5, bs[0] + 1, 1, 0, 350, getWidth(), height - 180, s.name, (bs[0] * bs[0] + 1) * 120));
@@ -1175,11 +1174,59 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
             }
 
         }
+        
+        
         bullet = bt;
         bmod = false;
+    CopyOnWriteArrayList<Bullet> bd=new CopyOnWriteArrayList<Bullet>();
+ for (int c = 0; c < evilBullet.size(); c++) {
+            Bullet b = evilBullet.get(c);
+
+            g.setColor(b.color);
+            if(b.type==1){
+                g.drawImage(fireBall, null,(int)b.x,(int)b.y);
+            }
+            //g.fillRect((int) b.x, (int) b.y, 15, 5);
+            Random r = new Random(1000);
+            
+                if (b != null && hp > 0 && ((b.x + 15) >= x - 100
+                        && (b.x) <= x - 100 + character[0].getWidth()
+                        && (b.y + 5) >= y - 100
+                        && (b.y) <= y - 100 + character[0].getHeight())) {
+                        hp -= dmg;
+                    if (hp <= 0) {
+                            alive = false;
+                            walking = false;
+                        }
+                   evilBullet=new CopyOnWriteArrayList<Bullet>();
+                    b.nullify = true;
+
+                }
+
+
+            
+
+            if (b.x > getWidth() || b.y < 0 || b.y > getHeight() || b.x < 0 || (b.wx > b.x) && (b.wx - b.x <= 1 || (b.wx - b.x < 0 && b.x - b.wx <= 1)) && ((b.y - b.wy < 0 && b.wy - b.y <= 1) || (b.y > b.wy) && b.y - b.wy <= 1)) {
+                b.nullify = true;
+
+            } else {
+                b.x += 8 * b.speed * b.xspeed;
+                b.y += 8 * b.speed * (b.yspeed);
+            }
+
+
+
+
+            if (!b.nullify) {
+                bd.add(b);
+            }
+
+        }   
+        if(evilBullet.size()>0)evilBullet=bd;
+    
     }
     volatile boolean drawingStatik = false;
-
+    volatile CopyOnWriteArrayList<Bullet> evilBullet;
     public void drawStatik(Graphics2D g) {
         if (!drawingStatik) {
             drawingStatik = true;
@@ -1190,7 +1237,14 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
                 if (s.hp != 0) {
                     int picWidth = enemies[s.picID].getWidth();
                     int picHeight = enemies[s.picID].getHeight();
-
+                    if(s.boss!=-1){
+                        if(s.boss==0 && fireCD.tick){
+                            // public Bullet(int dmg, int x, int y, int wx, int wy, double speed, Color color, DrawPanel dP, double k,int type) {
+    fireCD.tick=false;
+                            evilBullet.add(new Bullet(20,(int)s.x,(int)s.y,(int)x,(int)y,1.0,Color.RED,this,(float) (((double) y - (double) s.y) / ((double) x - (double) s.x)),1));
+                            
+                        }
+                    }
 
                     g.setColor(Color.BLACK);
                     g.fillRect((int) s.x - (picWidth / 2 + 1) + picWidth / 2 - 50, (int) s.y - (picHeight / 2 + 36), 100, 22);
@@ -1285,8 +1339,10 @@ class DrawPanel extends JPanel implements MouseListener, MouseMotionListener {
                         respawn2.tick = false;
                     } else {
                         if (!dragonSpawned && lvl > 15 && lvl < 25 && statik.size() < 1) {
-                            statik.add(new Statik(450, 450, 14, 1.4, 3, 550, getWidth(), height - 280, "Dragon", 850000));
+                            statik.add(new Statik(450, 450, 14, 1.4, 3, 550, getWidth(), height - 280, "Dragon", 850000,0));
                             dragonSpawned = true;
+                            fireCD.start();
+                            
                         } else {
                             if (!warlockSpawned && lvl > 19 && lvl < 30 && statik.size() < 1) {
                                 statik.add(new Statik(1050, 1050, 25, 2.0, 4, 850, getWidth(), height - 220, "Warlock", 8500000));
